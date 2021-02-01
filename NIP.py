@@ -45,8 +45,8 @@ def GetDataFromFile():
         DetLim = float(DetLim)
 
         # Инициализируем память под данные
-        C = [888 for _ in range(lines_count * 2 * columns_count)]
-        d = [None for _ in range(2 * lines_count)]
+        C = [0. for _ in range(lines_count * 2 * columns_count)]
+        d = [0. for _ in range(2 * lines_count)]
         # Обработка последней строки - строки правой части
         last_str = list(map(float, filelist[-1].split()))
         for i, j in zip(range(0, lines_count, 1), range(0, 2 * lines_count, 2)):
@@ -57,31 +57,22 @@ def GetDataFromFile():
         for i in range(2, len(filelist) - 2):
             T = list(map(float, filelist[i].split()))
             i -= 2
-            k = 0
             for j in range(0, len(T), 2):
-                C[i * 2 * columns_count + 2 * k] = T[j]
-                C[i * 2 * columns_count + 2 * k + 1] = T[j + 1]
-                k += 1
+                C[i * 2 * columns_count + j] = T[j]
+                C[i * 2 * columns_count + j + 1] = T[j + 1]
 
     return lines_count, columns_count, Eps, Tau, IterLim, MatrixCount, DetLim, C, d
 
 
 # Разделяем исходную матрицу на четверти
 def SeparationMatrix(Matrix, d, columns_count, lines_count):
-    quarter_matrix_array = [[None for _ in range(0, len(Matrix) // 4)], [None for _ in range(0, len(Matrix) // 4)],
-                            [None for _ in range(0, len(Matrix) // 4)], [None for _ in range(0, len(Matrix) // 4)]]
-    half_d_array = [[None for _ in range(0, len(d) // 2)], [None for _ in range(0, len(d) // 2)]]
+    Matrix_np = np.array(Matrix).reshape((lines_count, 2*columns_count))
 
-    for i in range(0, lines_count // 2):
-        for j in range(0, columns_count):
-            quarter_matrix_array[0][i*columns_count + j] = Matrix[i*2*columns_count + j]
-            quarter_matrix_array[1][i*columns_count + j] = Matrix[i*2*columns_count + j + columns_count]
-            quarter_matrix_array[2][i*columns_count + j] = Matrix[i*2*columns_count + lines_count + j]
-            quarter_matrix_array[3][i * columns_count + j] = Matrix[i * 2 * columns_count + lines_count
-                                                                    + j + columns_count]
-        for k in range(2):
-            half_d_array[0][i*2 + k] = d[i*2 + k]
-            half_d_array[1][i*2 + k] = d[i*2 + lines_count + k]
+    quarter_matrix_array = [Matrix_np[:lines_count // 2, :columns_count].reshape(-1).tolist(),
+                            Matrix_np[:lines_count // 2, columns_count:].reshape(-1).tolist(),
+                            Matrix_np[lines_count // 2:, :columns_count].reshape(-1).tolist(),
+                            Matrix_np[lines_count // 2:, columns_count:].reshape(-1).tolist()]
+    half_d_array = [d[:lines_count], d[lines_count:]]
 
     return quarter_matrix_array, half_d_array
 
@@ -98,6 +89,14 @@ def main():
     plt.savefig("Matrix.png")
 
     quarter_matrix_array, half_d_array = SeparationMatrix(C, d, columns_count, lines_count)
+
+    for i in range(4):
+        plt.figure()
+        sbn.heatmap(np.array(quarter_matrix_array[i]).reshape((lines_count // 2, columns_count)), )
+        plt.title('Matrix')
+        plt.xlabel('Columns')
+        plt.ylabel('Rows')
+        plt.savefig(f"Quarter_Matrix{i}.png")
 
     answer = [[None for _ in range(0, columns_count)], [None for _ in range(0, columns_count)],
               [None for _ in range(0, columns_count)], [None for _ in range(0, columns_count)]]
