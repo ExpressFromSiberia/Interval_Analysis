@@ -102,10 +102,11 @@ def main():
               [None for _ in range(0, columns_count)], [None for _ in range(0, columns_count)]]
 
     for i in range(0, 4):
-        answer[i] = ProccesCycle(quarter_matrix_array[i], half_d_array[i // 2], columns_count // 2,
+        answer[i], iterations = ProccesCycle(quarter_matrix_array[i], half_d_array[i // 2], columns_count // 2,
                               lines_count // 2, Tau, Eps, IterLim, DetLim)
         print("\n\nВектор решений полученный для", i+1,"четверти исходной матрицы \n")
         PrintAnswer(answer[i])
+        print(f"Количество слияний ответов для матрицы {i + 1} = {iterations}")
 
     # answer = ProccesCycle(C, d, columns_count, lines_count, Tau, Eps, IterLim, DetLim)
     # PrintAnswer(answer)

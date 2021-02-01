@@ -350,7 +350,7 @@ def GetArrayMatrix(remC, lines_count, resColVal, DetLim, first_line, last_line):
 
 # Вылонение цикла для получение решений по квадратным матрицам
 def ProccesCycle(C, d, columns_count, lines_count, Tau, Eps, IterLim, DetLim):
-
+    iterations = 0
     # Получаем для основой матрицы точечный вариант
     midC = GetMidMatrix(C)
     check_midC = np.array(midC).reshape((lines_count, columns_count))
@@ -362,7 +362,7 @@ def ProccesCycle(C, d, columns_count, lines_count, Tau, Eps, IterLim, DetLim):
     squarexx = [999 for _ in range(2 * len(remaining_columns))]
     answer = [None for _ in range(2 * columns_count)]
     if len(remC) == 0:
-        return answer
+        return answer, iterations
 
     # Запускаем цикл для массива подматриц и получаем решения
     first_line = 0
@@ -383,6 +383,7 @@ def ProccesCycle(C, d, columns_count, lines_count, Tau, Eps, IterLim, DetLim):
         # Решаем для этой матрицы систему
         Algorithm(squareMatrix_lines, squareMatrix_columns, squareA, squareF, squared, squarexx, Tau, Eps, IterLim)
         MergeAnswers(answer, squarexx, columns)
+        iterations += 1
         ver_answers = []
         for c in columns:
             ver_answers += [answer[2*c], answer[2*c + 1]]
@@ -392,7 +393,7 @@ def ProccesCycle(C, d, columns_count, lines_count, Tau, Eps, IterLim, DetLim):
         #     print("\n Verification success \n")
         # else:
         #     print("\n Verification failed \n")
-    return answer
+    return answer, iterations
 
 
 # Получение матрицы midA
@@ -407,7 +408,6 @@ def GetMidMatrix(A):
 
 # Объединяем старые решения и полученное новое
 def MergeAnswers(allAnswers, newAnswers, columns):
-
     # Делаем правильные проекции векторов
     for i in range(0, len(newAnswers), 2):
         if newAnswers[i] > newAnswers[i + 1]:
@@ -419,3 +419,4 @@ def MergeAnswers(allAnswers, newAnswers, columns):
         allAnswers[k] = max(allAnswers[k], newAnswers[j]) if allAnswers[k] is not None else newAnswers[j]
         allAnswers[k + 1] = min(allAnswers[k + 1], newAnswers[j + 1]) if allAnswers[k + 1] is not None\
             else newAnswers[j + 1]
+
